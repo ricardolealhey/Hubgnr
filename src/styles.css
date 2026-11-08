@@ -12,3 +12,67 @@
 @media(max-width:1050px){.dashboard-columns{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.dashboard-columns{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.right-stack{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.dashboard-intro{padding:21px;margin-top:19px}.intro-emblem{padding:0 3px}.intro-emblem span{font-size:49px}.intro-emblem small{font-size:7px}.dashboard-intro h1{font-size:25px}.dashboard-intro p:not(.eyebrow){font-size:11px;max-width:260px}.stats{gap:8px}.stat-card{padding:12px;min-height:116px}.stat-top span{font-size:8px}.stat-card strong{font-size:23px}.stat-card small{font-size:8px}.module-grid{grid-template-columns:1fr}.right-stack{grid-template-columns:1fr}.section-heading{align-items:flex-end}.section-heading h3{font-size:15px}.live-label{font-size:8px}.dashboard-footer{flex-direction:column}.module-placeholder{padding:25px}.module-placeholder h1{font-size:28px}}
+
+
+/* Ajuste de viewport e navegação mobile */
+html,body,#root{width:100%;max-width:100%;min-width:320px;margin:0;overflow-x:hidden}
+.app-shell{width:100%;max-width:100%;min-width:0;grid-template-columns:250px minmax(0,1fr)}
+.sidebar,.main-area,.topbar,.dashboard-intro,.dashboard-columns,.stats,.panel-card,.stat-card{min-width:0}
+.main-area{width:100%;max-width:100%;overflow-x:hidden}
+.mobile-module-select{display:none}
+@media(max-width:900px){
+  .app-shell{display:flex;flex-direction:column;width:100%;max-width:100%;overflow-x:hidden}
+  .sidebar{width:100%;max-width:100%;min-width:0;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;overflow:hidden}
+  .sidebar .brand{padding:0;flex:0 0 auto}
+  .sidebar .brand-mark{width:36px;height:36px}
+  .side-label,.desktop-nav,.side-bottom{display:none!important}
+  .mobile-module-select{display:flex;flex-direction:column;gap:4px;flex:0 1 210px;min-width:0}
+  .mobile-module-select span{font-size:8px;letter-spacing:.14em;color:#7189a5}
+  .mobile-module-select select{width:100%;max-width:100%;min-width:0;background:#102944;color:#eaf2ff;border:1px solid #294966;border-radius:8px;padding:9px 28px 9px 10px;font-size:11px}
+  .main-area{width:100%;max-width:100%;min-width:0;padding:0 14px 28px;overflow-x:hidden}
+  .topbar{width:100%;min-width:0;gap:8px}
+  .topbar>div:first-child{min-width:0}
+  .topbar .eyebrow{font-size:8px;letter-spacing:.12em}
+  .topbar h2{font-size:16px;overflow-wrap:anywhere}
+  .user-area{flex:0 0 auto;gap:7px}
+  .logout{margin-left:2px}
+  .dashboard-intro{width:100%;min-width:0;gap:8px;padding:20px}
+  .dashboard-intro>div:first-child{min-width:0;flex:1}
+  .dashboard-intro p:not(.eyebrow){overflow-wrap:anywhere}
+  .stats{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard-columns,.right-stack{width:100%;grid-template-columns:minmax(0,1fr)}
+  .panel-card{width:100%;min-width:0}
+  .module-grid{grid-template-columns:minmax(0,1fr)}
+  .module-tile{min-width:0}
+  .phase-row{min-width:0;flex-wrap:wrap}
+  .phase-row>div{min-width:0}
+  .dashboard-footer{flex-wrap:wrap}
+}
+@media(max-width:480px){
+  .main-area{padding-left:12px;padding-right:12px}
+  .topbar{height:72px}
+  .topbar h2{font-size:15px}
+  .user-area .avatar{width:30px;height:30px}
+  .logout{padding:7px 8px;font-size:10px}
+  .dashboard-intro{padding:17px;margin:16px 0 18px}
+  .intro-emblem{padding:0;flex:0 0 48px}
+  .intro-emblem span{font-size:42px}
+  .intro-emblem small{font-size:6px;letter-spacing:.12em}
+  .dashboard-intro h1{font-size:22px;overflow-wrap:anywhere}
+  .dashboard-intro p:not(.eyebrow){font-size:10px;max-width:none}
+  .stats{gap:8px}
+  .stat-card{padding:11px;min-height:112px}
+  .stat-top span{font-size:7px;letter-spacing:.06em}
+  .stat-card strong{font-size:21px}
+  .stat-card small{font-size:8px}
+  .section-heading{gap:6px}
+  .section-heading h3{font-size:14px}
+  .live-label{font-size:7px;white-space:nowrap}
+  .panel-card{padding:13px}
+  .panel-title{align-items:flex-start;flex-wrap:wrap}
+  .count-tag{font-size:8px}
+  .module-tile{padding:12px}
+  .phase-row em{margin-left:32px}
+  .ecosystem-item{min-width:0}
+  .ecosystem-item>span{font-size:7px}
+}
