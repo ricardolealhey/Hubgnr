@@ -66,9 +66,8 @@ export default function ManagementModule({ active }) {
   async function save(event){
     event.preventDefault(); if(!cfg) return;
     setBusy(true); setNotice('');
-    const payload={...form};
+    const payload = Object.fromEntries(cfg.fields.map(([key]) => [key, form[key] ?? '']));
     if(cfg.table==='clients') payload.company_id=payload.company_id||null;
-    delete payload.id; delete payload.created_at; delete payload.updated_at; delete payload.created_by;
     const result=editing==='new'
       ? await supabase.from(cfg.table).insert(payload)
       : await supabase.from(cfg.table).update(payload).eq('id',editing);
