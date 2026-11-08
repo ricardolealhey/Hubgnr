@@ -84,7 +84,7 @@ function Dashboard({ profile, onLogout }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const name = profile?.full_name || profile?.email?.split('@')[0] || 'Administrador';
   const firstName = name.split(' ')[0];
-  const today = useMemo(() => new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date()), []);
+  const today = useMemo(() => new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date()), []);\n  const greeting = new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite';
 
   useEffect(() => {
     let alive = true;
@@ -114,7 +114,7 @@ function Dashboard({ profile, onLogout }) {
     <main className="main-area">
       <header className="topbar"><div><span className="eyebrow">GRUPO NOVA ROTA / MASTER</span><h2>{active}</h2></div><div className="user-area"><div className="avatar">{name.slice(0,1).toUpperCase()}</div><div><b>{name}</b><small>{profile?.role || 'usuário'}</small></div><button className="logout" onClick={onLogout}>Sair</button></div></header>
       {isOverview ? <>
-        <section className="dashboard-intro"><div><p className="eyebrow">PAINEL MASTER</p><h1>Bom dia, {firstName}.</h1><p>Uma visão central para acompanhar e conduzir as operações do Grupo Nova Rota.</p><span className="today-label">{today}</span></div><div className="intro-emblem"><span>NR</span><small>BY GNR</small></div></section>
+        <section className="dashboard-intro"><div><p className="eyebrow">PAINEL MASTER</p><h1>{greeting}, {firstName}.</h1><p>Uma visão central para acompanhar e conduzir as operações do Grupo Nova Rota.</p><span className="today-label">{today}</span></div><div className="intro-emblem"><span>NR</span><small>BY GNR</small></div></section>
         <section className="section-heading"><div><span className="eyebrow">INDICADORES DO GRUPO</span><h3>Visão operacional</h3></div><span className="live-label"><i></i>{countsState === 'ready' ? 'Dados atualizados' : countsState === 'error' ? 'Falha ao consultar' : 'Consultando dados'}</span></section>
         <section className="stats">
           <StatCard label="EMPRESAS / UNIDADES" value="—" detail="Cadastro previsto na próxima etapa" icon="01" muted />
