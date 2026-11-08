@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { isSupabaseConfigured, supabase } from './supabase';
 import './styles.css';
+import ManagementModule from './ManagementModule';
 
 function Brand() {
   return <div className="brand"><div className="brand-mark">NR</div><div><strong>HUB GNR</strong><span>GRUPO NOVA ROTA</span></div></div>;
@@ -64,6 +65,7 @@ const modules = [
   ['13','GNR Performance','Tráfego pago e resultados','performance'],
   ['14','Mentoria','Planos e acompanhamento','mentoring'],
   ['15','Relatórios','Indicadores e análises','reports'],
+  ['16','Equipe','Usuários, perfis e acessos','team'],
 ];
 
 const phases = [
@@ -79,7 +81,7 @@ function StatCard({ label, value, detail, icon, muted = false }) {
 
 function Dashboard({ profile, onLogout }) {
   const [active, setActive] = useState('Visão Geral');
-  const [counts, setCounts] = useState({ users: null, clients: null });
+  const [counts, setCounts] = useState({ users: null, clients: null, companies: null });
   const [countsState, setCountsState] = useState('loading');
   const [lastUpdated, setLastUpdated] = useState(null);
   const name = profile?.full_name || profile?.email?.split('@')[0] || 'Administrador';
@@ -91,14 +93,15 @@ function Dashboard({ profile, onLogout }) {
     let alive = true;
     async function loadCounts() {
       setCountsState('loading');
-      const [usersResult, clientsResult] = await Promise.all([
+      const [usersResult, clientsResult, companiesResult] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'active').eq('role', 'client')
+        supabase.from('clients').select('*', { count: 'exact', head: true }),
+        supabase.from('companies').select('*', { count: 'exact', head: true }).eq('status', 'active')
       ]);
       if (!alive) return;
-      if (usersResult.error || clientsResult.error) setCountsState('error');
+      if (usersResult.error || clientsResult.error || companiesResult.error) setCountsState('error');
       else {
-        setCounts({ users: usersResult.count ?? 0, clients: clientsResult.count ?? 0 });
+        setCounts({ users: usersResult.count ?? 0, clients: clientsResult.count ?? 0, companies: companiesResult.count ?? 0 });
         setCountsState('ready');
         setLastUpdated(new Date());
       }
@@ -118,13 +121,13 @@ function Dashboard({ profile, onLogout }) {
         <section className="dashboard-intro"><div><p className="eyebrow">PAINEL MASTER</p><h1>{greeting}, {firstName}.</h1><p>Uma visão central para acompanhar e conduzir as operações do Grupo Nova Rota.</p><span className="today-label">{today}</span></div><div className="intro-emblem"><span>NR</span><small>BY GNR</small></div></section>
         <section className="section-heading"><div><span className="eyebrow">INDICADORES DO GRUPO</span><h3>Visão operacional</h3></div><span className="live-label"><i></i>{countsState === 'ready' ? 'Dados atualizados' : countsState === 'error' ? 'Falha ao consultar' : 'Consultando dados'}</span></section>
         <section className="stats">
-          <StatCard label="EMPRESAS / UNIDADES" value="—" detail="Cadastro previsto na próxima etapa" icon="01" muted />
-          <StatCard label="CLIENTES ATIVOS" value={countsState === 'ready' ? counts.clients : '—'} detail={countsState === 'ready' ? 'Perfis ativos com função cliente' : countsState === 'error' ? 'Não foi possível consultar' : 'Consultando base de usuários'} icon="02" />
+          <StatCard label="EMPRESAS / UNIDADES" value={countsState === "ready" ? counts.companies : "—"} detail={countsState === "ready" ? "Unidades cadastradas ativas" : "Consultando cadastros"} icon="01" />
+          <StatCard label="CLIENTES CADASTRADOS" value={countsState === "ready" ? counts.clients : "—"} detail={countsState === "ready" ? "Registros na base de clientes" : countsState === "error" ? "Não foi possível consultar" : "Consultando cadastros"} icon="02" />
           <StatCard label="PROJETOS EM ANDAMENTO" value="—" detail="Módulo de projetos ainda não implantado" icon="03" muted />
           <StatCard label="USUÁRIOS ATIVOS" value={countsState === 'ready' ? counts.users : '—'} detail={countsState === 'ready' ? 'Perfis ativos cadastrados' : countsState === 'error' ? 'Não foi possível consultar' : 'Consultando base de usuários'} icon="04" />
         </section>
         <section className="dashboard-columns">
-          <article className="panel-card module-panel"><div className="panel-title"><div><span className="eyebrow">NAVEGAÇÃO RÁPIDA</span><h3>Acesse os módulos</h3></div><span className="count-tag">15 áreas planejadas</span></div><div className="module-grid">{modules.slice(1).map(([n,title,desc])=><button key={n} className="module-tile" onClick={()=>setActive(title)}><span>{n}</span><div><b>{title}</b><small>{desc}</small></div><i>↗</i></button>)}</div></article>
+          <article className="panel-card module-panel"><div className="panel-title"><div><span className="eyebrow">NAVEGAÇÃO RÁPIDA</span><h3>Acesse os módulos</h3></div><span className="count-tag">16 áreas planejadas</span></div><div className="module-grid">{modules.slice(1).map(([n,title,desc])=><button key={n} className="module-tile" onClick={()=>setActive(title)}><span>{n}</span><div><b>{title}</b><small>{desc}</small></div><i>↗</i></button>)}</div></article>
           <div className="right-stack">
             <article className="panel-card"><div className="panel-title"><div><span className="eyebrow">IMPLANTAÇÃO</span><h3>Progresso da fundação</h3></div><span className="progress-number">2/4</span></div><div className="progress-track"><span style={{width:'50%'}}></span></div><div className="phase-list">{phases.map((phase,i)=><div className="phase-row" key={phase.name}><span className={phase.done?'phase-check':'phase-number'}>{phase.done?'✓':String(i+1).padStart(2,'0')}</span><div><b>{phase.name}</b><small>{phase.detail}</small></div><em className={phase.done?'phase-done':i===2?'phase-current':'phase-pending'}>{phase.status}</em></div>)}</div></article>
             <article className="panel-card ecosystem-card"><span className="eyebrow">ECOSSISTEMA GNR</span><h3>Integrações previstas</h3><div className="ecosystem-item"><i>CRM</i><div><b>GNR CRM</b><small>Integração depende de auditoria técnica</small></div><span>PENDENTE</span></div><div className="ecosystem-item"><i>VI</i><div><b>GNR Visitor Intelligence</b><small>Integração depende de auditoria técnica</small></div><span>PENDENTE</span></div><p className="disclaimer">Nenhuma integração externa foi ativada nesta fase.</p></article>
