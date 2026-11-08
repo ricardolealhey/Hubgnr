@@ -110,7 +110,7 @@ function Dashboard({ profile, onLogout }) {
   const isOverview = active === 'Visão Geral';
 
   return <div className="app-shell">
-    <aside className="sidebar"><Brand /><div className="side-label">CENTRAL DE GESTÃO</div><nav>{modules.map(([n,title,,key])=><button key={n} className={active===title?'nav-item selected':'nav-item'} onClick={()=>setActive(title)}><span>{n}</span><b>{title}</b></button>)}</nav><div className="side-bottom"><span className="status-dot"></span> Supabase conectado</div></aside>
+    <aside className="sidebar"><Brand /><div className="side-label">CENTRAL DE GESTÃO</div><nav className="desktop-nav">{modules.map(([n,title])=><button key={n} className={active===title?'nav-item selected':'nav-item'} onClick={()=>setActive(title)}><span>{n}</span><b>{title}</b></button>)}</nav><label className="mobile-module-select"><span>MÓDULO</span><select value={active} onChange={e=>setActive(e.target.value)}>{modules.map(([n,title])=><option key={n} value={title}>{n} · {title}</option>)}</select></label><div className="side-bottom"><span className="status-dot"></span> Supabase conectado</div></aside>
     <main className="main-area">
       <header className="topbar"><div><span className="eyebrow">GRUPO NOVA ROTA / MASTER</span><h2>{active}</h2></div><div className="user-area"><div className="avatar">{name.slice(0,1).toUpperCase()}</div><div><b>{name}</b><small>{profile?.role || 'usuário'}</small></div><button className="logout" onClick={onLogout}>Sair</button></div></header>
       {isOverview ? <>
