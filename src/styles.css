@@ -76,3 +76,47 @@ html,body,#root{width:100%;max-width:100%;min-width:320px;margin:0;overflow-x:hi
   .ecosystem-item{min-width:0}
   .ecosystem-item>span{font-size:7px}
 }
+
+
+/* Fase 01.4 — cadastros-base */
+.management-page{padding:30px 0 45px;min-width:0}
+.management-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:22px}
+.management-heading h1{font:800 clamp(25px,3vw,34px) Manrope;margin:8px 0}
+.management-heading p{font-size:12px;color:#8197b0;margin:0;line-height:1.6}
+.management-add{white-space:nowrap;margin:0}
+.management-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;background:#0b1a2a;border:1px solid #1a3048;border-radius:12px;padding:13px 15px;margin-bottom:13px}
+.management-count{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.management-count strong{font:800 23px Manrope;color:#7ec7ff}
+.management-count span{font-size:10px;color:#7c93ad}
+.management-toolbar input{width:min(100%,360px);background:#101f33;border:1px solid #243a55;border-radius:8px;padding:11px 12px;color:#fff;outline:none;font-size:11px}
+.management-toolbar input:focus,.management-modal input:focus,.management-modal select:focus,.management-modal textarea:focus{border-color:#1689ff;box-shadow:0 0 0 3px #1689ff20}
+.management-table-wrap{width:100%;overflow-x:auto;background:#0b1a2a;border:1px solid #1a3048;border-radius:12px}
+.management-table{width:100%;border-collapse:collapse;min-width:650px;text-align:left}
+.management-table th{font-size:9px;letter-spacing:.12em;color:#6f87a1;padding:15px 16px;border-bottom:1px solid #1a3048;font-weight:600}
+.management-table td{font-size:11px;color:#a8bbd1;padding:14px 16px;border-bottom:1px solid #152a40}
+.management-table tbody tr:last-child td{border-bottom:0}
+.management-table td b{color:#eaf2ff;font-size:11px}
+.status-chip,.role-chip{display:inline-block;border-radius:20px;padding:5px 8px;font-size:9px;background:#142a40;color:#8eabc8}
+.status-chip.active{background:#123b36;color:#70d8b6}
+.status-chip.inactive{background:#38252a;color:#e49aa5}
+.status-chip.prospect{background:#3b3320;color:#e4c477}
+.management-actions{white-space:nowrap}
+.management-actions button{background:#102944;border:1px solid #294966;color:#91cfff;border-radius:6px;padding:6px 9px;font-size:9px;margin-right:6px}
+.management-actions .danger-action{color:#e7a0a8;border-color:#633d47;background:#2b2029}
+.management-empty{min-height:180px;display:grid;align-content:center;justify-items:center;gap:8px;border:1px dashed #29415c;border-radius:12px;color:#8da4be;font-size:11px;text-align:center;padding:24px}
+.management-empty b{color:#eaf2ff;font-size:13px}
+.management-notice{padding:11px 14px;margin-bottom:12px;border:1px solid #245276;border-radius:8px;color:#a8d9ff;font-size:11px;background:#102944}
+.management-footnote{font-size:10px;color:#7188a2;line-height:1.6;margin-top:15px}
+.modal-backdrop{position:fixed;inset:0;z-index:50;background:#020812c9;display:grid;place-items:center;padding:18px;overflow-y:auto}
+.management-modal{width:min(100%,680px);max-height:calc(100vh - 36px);overflow-y:auto;background:#0b1a2a;border:1px solid #294966;border-radius:15px;padding:22px;box-shadow:0 20px 80px #0009}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-head h2{font:700 21px Manrope;margin:6px 0 0}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid #29415c;background:#102944;color:#b6cbe0;font-size:22px}
+.management-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.management-form-grid label{display:grid;gap:7px;color:#9db2ca;font-size:10px;min-width:0}
+.management-form-grid input,.management-form-grid select,.management-form-grid textarea{width:100%;min-width:0;background:#101f33;border:1px solid #243a55;border-radius:8px;padding:11px;color:#eaf2ff;outline:none;font:11px 'DM Sans',sans-serif}
+.management-form-grid textarea{resize:vertical}
+.management-form-grid .field-wide{grid-column:1/-1}
+.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
+.modal-actions .secondary,.modal-actions .primary{margin:0;padding:11px 16px;font-size:11px}
+@media(max-width:600px){.management-page{padding-top:20px}.management-heading{align-items:flex-start;flex-direction:column}.management-add{width:100%}.management-toolbar{align-items:stretch;flex-direction:column}.management-toolbar input{width:100%}.management-form-grid{grid-template-columns:1fr}.management-form-grid .field-wide{grid-column:auto}.management-modal{padding:17px}.modal-actions{flex-direction:column-reverse}.modal-actions button{width:100%}}
