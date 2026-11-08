@@ -7,8 +7,9 @@ function Brand() {
   return <div className="brand"><div className="brand-mark">NR</div><div><strong>HUB GNR</strong><span>GRUPO NOVA ROTA</span></div></div>;
 }
 
-function AuthScreen() {
-  const [mode, setMode] = useState('login');
+function AuthScreen({ initialMode = 'login', onPasswordUpdated }) {
+  const [mode, setMode] = useState(initialMode);
+  useEffect(() => setMode(initialMode), [initialMode]);
   const [email, setEmail] = useState('ricardolealrssc@gmail.com');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -31,6 +32,7 @@ function AuthScreen() {
         setMessage('Senha atualizada. Você já pode continuar.');
         setMode('login');
         setPassword('');
+        onPasswordUpdated?.();
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -88,13 +90,17 @@ function App() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [recoveryMode, setRecoveryMode] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured) { setLoading(false); return; }
     let alive = true;
     supabase.auth.getSession().then(({data}) => { if (alive) setSession(data.session); });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (alive) setSession(nextSession);
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (alive) {
+        if (event === 'PASSWORD_RECOVERY') setRecoveryMode(true);
+        setSession(nextSession);
+      }
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
@@ -119,8 +125,8 @@ function App() {
 
   if (!isSupabaseConfigured) return <div className="system-message"><Brand/><h1>Configuração necessária</h1><p>Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY nas variáveis de ambiente.</p></div>;
   if (loading) return <div className="loading-screen"><div className="spinner"></div><p>Conectando ao HUB GNR...</p></div>;
-  if (session && profile) return <Dashboard profile={profile} onLogout={()=>supabase.auth.signOut()} />;
-  return <><AuthScreen />{error && <div className="toast" role="alert">{error}</div>}</>;
+  if (session && profile && !recoveryMode) return <Dashboard profile={profile} onLogout={()=>supabase.auth.signOut()} />;
+  return <><AuthScreen initialMode={recoveryMode ? 'update' : 'login'} onPasswordUpdated={()=>setRecoveryMode(false)} />{error && <div className="toast" role="alert">{error}</div>}</>;
 }
 
 createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>);
