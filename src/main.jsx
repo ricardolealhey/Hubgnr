@@ -84,7 +84,8 @@ function Dashboard({ profile, onLogout }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const name = profile?.full_name || profile?.email?.split('@')[0] || 'Administrador';
   const firstName = name.split(' ')[0];
-  const today = useMemo(() => new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date()), []);\n  const greeting = new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite';
+  const today = useMemo(() => new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(new Date()), []);
+  const greeting = new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite';
 
   useEffect(() => {
     let alive = true;
