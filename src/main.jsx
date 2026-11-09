@@ -79,8 +79,13 @@ function StatCard({ label, value, detail, icon, muted = false }) {
   return <article className={muted ? 'stat-card stat-muted' : 'stat-card'}><div className="stat-top"><span>{label}</span><i>{icon}</i></div><strong>{value}</strong><small>{detail}</small></article>;
 }
 
-function Dashboard({ profile, onLogout }) {
-  const [active, setActive] = useState('Visão Geral');
+function Dashboard({ profile, permissions = [], onLogout }) {
+  const isAdmin = ['master','admin'].includes(profile?.role);
+  const permissionMap = Object.fromEntries(permissions.map(p => [p.module_key, p]));
+  const moduleKey = { presence:'digital_presence', portal:'client_portal' };
+  const allowedModules = modules.filter(m => m[3] === 'overview' ? isAdmin : isAdmin || !!permissionMap[moduleKey[m[3]] || m[3]]?.can_view);
+  const initialModule = isAdmin ? 'Visão Geral' : (allowedModules[0]?.[1] || 'Sem acesso');
+  const [active, setActive] = useState(initialModule);
   const [counts, setCounts] = useState({ users: null, clients: null, companies: null });
   const [countsState, setCountsState] = useState('loading');
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -114,9 +119,9 @@ function Dashboard({ profile, onLogout }) {
   const isOverview = active === 'Visão Geral';
 
   return <div className="app-shell">
-    <aside className="sidebar"><Brand /><div className="side-label">CENTRAL DE GESTÃO</div><nav className="desktop-nav">{modules.map(([n,title])=><button key={n} className={active===title?'nav-item selected':'nav-item'} onClick={()=>setActive(title)}><span>{n}</span><b>{title}</b></button>)}</nav><label className="mobile-module-select"><span>MÓDULO</span><select value={active} onChange={e=>setActive(e.target.value)}>{modules.map(([n,title])=><option key={n} value={title}>{n} · {title}</option>)}</select></label><div className="side-bottom"><span className="status-dot"></span> Supabase conectado</div></aside>
+    <aside className="sidebar"><Brand /><div className="side-label">CENTRAL DE GESTÃO</div><nav className="desktop-nav">{allowedModules.map(([n,title])=><button key={n} className={active===title?'nav-item selected':'nav-item'} onClick={()=>setActive(title)}><span>{n}</span><b>{title}</b></button>)}</nav><label className="mobile-module-select"><span>MÓDULO</span><select value={active} onChange={e=>setActive(e.target.value)}>{allowedModules.map(([n,title])=><option key={n} value={title}>{n} · {title}</option>)}</select></label><div className="side-bottom"><span className="status-dot"></span> Supabase conectado</div></aside>
     <main className="main-area">
-      <header className="topbar"><div><span className="eyebrow">GRUPO NOVA ROTA / MASTER</span><h2>{active}</h2></div><div className="user-area"><div className="avatar">{name.slice(0,1).toUpperCase()}</div><div><b>{name}</b><small>{profile?.role || 'usuário'}</small></div><button className="logout" onClick={onLogout}>Sair</button></div></header>
+      <header className="topbar"><div><span className="eyebrow">GRUPO NOVA ROTA / {profile?.role?.toUpperCase()}</span><h2>{active}</h2></div><div className="user-area"><div className="avatar">{name.slice(0,1).toUpperCase()}</div><div><b>{name}</b><small>{profile?.role || 'usuário'}</small></div><button className="logout" onClick={onLogout}>Sair</button></div></header>
       {isOverview ? <>
         <section className="dashboard-intro"><div><p className="eyebrow">PAINEL MASTER</p><h1>{greeting}, {firstName}.</h1><p>Uma visão central para acompanhar e conduzir as operações do Grupo Nova Rota.</p><span className="today-label">{today}</span></div><div className="intro-emblem"><span>NR</span><small>BY GNR</small></div></section>
         <section className="section-heading"><div><span className="eyebrow">INDICADORES DO GRUPO</span><h3>Visão operacional</h3></div><span className="live-label"><i></i>{countsState === 'ready' ? 'Dados atualizados' : countsState === 'error' ? 'Falha ao consultar' : 'Consultando dados'}</span></section>
@@ -127,14 +132,14 @@ function Dashboard({ profile, onLogout }) {
           <StatCard label="USUÁRIOS ATIVOS" value={countsState === 'ready' ? counts.users : '—'} detail={countsState === 'ready' ? 'Perfis ativos cadastrados' : countsState === 'error' ? 'Não foi possível consultar' : 'Consultando base de usuários'} icon="04" />
         </section>
         <section className="dashboard-columns">
-          <article className="panel-card module-panel"><div className="panel-title"><div><span className="eyebrow">NAVEGAÇÃO RÁPIDA</span><h3>Acesse os módulos</h3></div><span className="count-tag">16 áreas planejadas</span></div><div className="module-grid">{modules.slice(1).map(([n,title,desc])=><button key={n} className="module-tile" onClick={()=>setActive(title)}><span>{n}</span><div><b>{title}</b><small>{desc}</small></div><i>↗</i></button>)}</div></article>
+          <article className="panel-card module-panel"><div className="panel-title"><div><span className="eyebrow">NAVEGAÇÃO RÁPIDA</span><h3>Acesse os módulos</h3></div><span className="count-tag">16 áreas planejadas</span></div><div className="module-grid">{allowedModules.filter(m=>m[3]!=='overview').map(([n,title,desc])=><button key={n} className="module-tile" onClick={()=>setActive(title)}><span>{n}</span><div><b>{title}</b><small>{desc}</small></div><i>↗</i></button>)}</div></article>
           <div className="right-stack">
             <article className="panel-card"><div className="panel-title"><div><span className="eyebrow">IMPLANTAÇÃO</span><h3>Progresso da fundação</h3></div><span className="progress-number">2/4</span></div><div className="progress-track"><span style={{width:'50%'}}></span></div><div className="phase-list">{phases.map((phase,i)=><div className="phase-row" key={phase.name}><span className={phase.done?'phase-check':'phase-number'}>{phase.done?'✓':String(i+1).padStart(2,'0')}</span><div><b>{phase.name}</b><small>{phase.detail}</small></div><em className={phase.done?'phase-done':i===2?'phase-current':'phase-pending'}>{phase.status}</em></div>)}</div></article>
             <article className="panel-card ecosystem-card"><span className="eyebrow">ECOSSISTEMA GNR</span><h3>Integrações previstas</h3><div className="ecosystem-item"><i>CRM</i><div><b>GNR CRM</b><small>Integração depende de auditoria técnica</small></div><span>PENDENTE</span></div><div className="ecosystem-item"><i>VI</i><div><b>GNR Visitor Intelligence</b><small>Integração depende de auditoria técnica</small></div><span>PENDENTE</span></div><p className="disclaimer">Nenhuma integração externa foi ativada nesta fase.</p></article>
           </div>
         </section>
         <footer className="dashboard-footer"><span>HUB GNR · Central de gestão</span><span>{lastUpdated ? 'Consulta realizada às ' + lastUpdated.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : 'Indicadores em atualização'}</span></footer>
-      </> : ['Empresas','Clientes','Equipe'].includes(active) ? <ManagementModule active={active} profile={profile} /> : <section className="module-placeholder"><span className="eyebrow">MÓDULO PREVISTO NA ARQUITETURA</span><div className="placeholder-icon">{selected?.[0] || 'GNR'}</div><h1>{active}</h1><p>{selected?.[2] || 'Área de gestão do Grupo Nova Rota.'}</p><div className="planned-note"><b>Etapa ainda não implantada</b><span>Este módulo será desenvolvido na fase correspondente. Nenhum dado operacional será exibido até que a estrutura esteja pronta.</span></div><button className="secondary" onClick={()=>setActive('Visão Geral')}>Voltar ao painel</button></section>}
+      </> : ['Empresas','Clientes','Equipe'].includes(active) ? <ManagementModule active={active} profile={profile} permissions={permissions} /> : <section className="module-placeholder"><span className="eyebrow">MÓDULO PREVISTO NA ARQUITETURA</span><div className="placeholder-icon">{selected?.[0] || 'GNR'}</div><h1>{active}</h1><p>{selected?.[2] || 'Área de gestão do Grupo Nova Rota.'}</p><div className="planned-note"><b>Etapa ainda não implantada</b><span>Este módulo será desenvolvido na fase correspondente. Nenhum dado operacional será exibido até que a estrutura esteja pronta.</span></div><button className="secondary" onClick={()=>setActive('Visão Geral')}>Voltar ao painel</button></section>}
     </main>
   </div>;
 }
@@ -142,6 +147,7 @@ function Dashboard({ profile, onLogout }) {
 function App() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [recoveryMode, setRecoveryMode] = useState(false);
@@ -159,15 +165,23 @@ function App() {
   useEffect(() => {
     let alive = true;
     async function loadProfile() {
-      if (!session?.user) { setProfile(null); setError(''); setLoading(false); return; }
+      if (!session?.user) { setProfile(null); setPermissions([]); setError(''); setLoading(false); return; }
       setLoading(true);
       const { data, error: profileError } = await supabase.from('profiles').select('user_id,email,full_name,role,status').eq('user_id', session.user.id).maybeSingle();
       if (!alive) return;
       if (profileError) setError(profileError.message);
-      else if (!data || data.status !== 'active' || !['master','admin'].includes(data.role)) {
-        setError('Sua conta não possui permissão para acessar o painel administrativo.');
+      else if (!data || data.status !== 'active') {
+        setError('Sua conta ainda não está ativa. Confirme o convite recebido por e-mail ou fale com o Master.');
         await supabase.auth.signOut();
-      } else { setProfile(data); setError(''); }
+      } else {
+        setProfile(data); setError('');
+        if (['master','admin'].includes(data.role)) setPermissions([]);
+        else {
+          const { data: granted, error: permissionError } = await supabase.from('user_module_permissions').select('module_key,can_view,can_manage').eq('user_id', session.user.id).eq('can_view', true);
+          if (permissionError) { setError(permissionError.message); setPermissions([]); }
+          else setPermissions(granted || []);
+        }
+      }
       setLoading(false);
     }
     loadProfile();
@@ -176,7 +190,7 @@ function App() {
 
   if (!isSupabaseConfigured) return <div className="system-message"><Brand/><h1>Configuração necessária</h1><p>Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY nas variáveis de ambiente.</p></div>;
   if (loading) return <div className="loading-screen"><div className="spinner"></div><p>Conectando ao HUB GNR...</p></div>;
-  if (session && profile && !recoveryMode) return <Dashboard profile={profile} onLogout={()=>supabase.auth.signOut()} />;
+  if (session && profile && !recoveryMode) return <Dashboard profile={profile} permissions={permissions} onLogout={()=>supabase.auth.signOut()} />;
   return <><AuthScreen initialMode={recoveryMode ? 'update' : 'login'} onPasswordUpdated={()=>setRecoveryMode(false)} />{error && <div className="toast" role="alert">{error}</div>}</>;
 }
 
