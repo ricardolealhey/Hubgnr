@@ -20,10 +20,16 @@ const config = {
   }
 };
 
+const moduleOptions = [
+  ['companies','Empresas'],['clients','Clientes'],['crm','CRM Comercial'],['projects','Projetos'],
+  ['tasks','Tarefas'],['calendar','Calendário'],['finance','Financeiro'],['digital_presence','Presença Digital'],
+  ['connect','GNR Connect'],['tickets','Chamados'],['client_portal','Portal do Cliente'],
+  ['performance','GNR Performance'],['mentoring','Mentoria'],['reports','Relatórios'],['team','Equipe']
+];
 const blank = { name:'', legal_name:'', document:'', segment:'', email:'', phone:'', website:'', status:'active', notes:'', contact_person:'', source:'', company_id:'' };
-const statusText = { active:'Ativo', inactive:'Inativo', prospect:'Prospect' };
+const statusText = { active:'Ativo', inactive:'Inativo', prospect:'Prospect', invited:'Convite enviado', suspended:'Suspenso' };
 
-export default function ManagementModule({ active }) {
+export default function ManagementModule({ active, profile }) {
   const isTeam = active === 'Equipe';
   const cfg = config[active];
   const [rows,setRows] = useState([]);
@@ -34,6 +40,9 @@ export default function ManagementModule({ active }) {
   const [busy,setBusy] = useState(false);
   const [loading,setLoading] = useState(true);
   const [notice,setNotice] = useState('');
+  const [memberOpen,setMemberOpen] = useState(false);
+  const [member,setMember] = useState({full_name:'',email:'',role:'staff'});
+  const [permissions,setPermissions] = useState({});
 
   async function load() {
     setLoading(true); setNotice('');
@@ -63,6 +72,46 @@ export default function ManagementModule({ active }) {
   function openEdit(row){ setEditing(row.id); setForm({...blank,...row,company_id:row.company_id||''}); setNotice(''); }
   function closeForm(){ setEditing(null); setForm(blank); }
 
+  function openMemberForm(){
+    setMember({full_name:'',email:'',role:'staff'});
+    setPermissions({});
+    setMemberOpen(true);
+    setNotice('');
+  }
+
+  function togglePermission(key, field, value) {
+    setPermissions(current => {
+      const previous = current[key] || {can_view:false,can_manage:false};
+      const next = {...previous,[field]:value};
+      if (field==='can_view' && !value) next.can_manage=false;
+      if (field==='can_manage' && value) next.can_view=true;
+      return {...current,[key]:next};
+    });
+  }
+
+  async function inviteMember(event) {
+    event.preventDefault();
+    setBusy(true); setNotice('');
+    const selectedPermissions = moduleOptions
+      .map(([module_key]) => ({module_key,...(permissions[module_key] || {can_view:false,can_manage:false})}))
+      .filter(p=>p.can_view);
+    const payload = {
+      full_name:member.full_name.trim(),
+      email:member.email.trim(),
+      role:member.role,
+      permissions: member.role==='performance'
+        ? [{module_key:'performance',can_view:true,can_manage:!!permissions.performance?.can_manage}]
+        : selectedPermissions
+    };
+    const {data,error} = await supabase.functions.invoke('hub-invite-member',{body:payload});
+    setBusy(false);
+    if(error){setNotice(error.message || 'Não foi possível enviar o convite.');return;}
+    if(data?.error){setNotice(data.error);return;}
+    setMemberOpen(false);
+    setNotice('Convite enviado para '+member.email+'. O usuário deverá acessar o e-mail para definir a senha.');
+    await load();
+  }
+
   async function save(event){
     event.preventDefault(); if(!cfg) return;
     setBusy(true); setNotice('');
@@ -86,8 +135,8 @@ export default function ManagementModule({ active }) {
 
   return <section className="management-page">
     <div className="management-heading">
-      <div><span className="eyebrow">{isTeam?'CONTROLE DE ACESSO':'CADASTROS-BASE'}</span><h1>{isTeam?'Equipe e usuários':cfg.title}</h1><p>{isTeam?'Consulte os perfis cadastrados e suas permissões atuais.':'Organize os cadastros que alimentam a operação do HUB GNR.'}</p></div>
-      {!isTeam && <button className="primary management-add" onClick={openNew}>+ Novo {cfg.singular}</button>}
+      <div><span className="eyebrow">{isTeam?'CONTROLE DE ACESSO':'CADASTROS-BASE'}</span><h1>{isTeam?'Equipe e usuários':cfg.title}</h1><p>{isTeam?'Convide membros e conceda somente os módulos necessários.':'Organize os cadastros que alimentam a operação do HUB GNR.'}</p></div>
+      {isTeam ? profile?.role==='master' && <button className="primary management-add" onClick={openMemberForm}>+ Adicionar membro</button> : <button className="primary management-add" onClick={openNew}>+ Novo {cfg.singular}</button>}
     </div>
     <div className="management-toolbar"><div className="management-count"><strong>{rows.length}</strong><span>{isTeam?'usuários cadastrados':cfg.singular+'(s) cadastrados'}</span></div><input aria-label="Buscar registros" placeholder="Buscar por nome, e-mail ou documento..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
     {notice && <div className="management-notice" role="status">{notice}</div>}
@@ -98,11 +147,25 @@ export default function ManagementModule({ active }) {
           <><td><b>{row.name}</b></td><td>{row.email||row.phone||row.contact_person||'—'}</td><td>{row.document||'—'}</td><td><span className={'status-chip '+row.status}>{statusText[row.status]||row.status}</span></td><td className="management-actions"><button onClick={()=>openEdit(row)}>Editar</button><button className="danger-action" onClick={()=>remove(row)}>Excluir</button></td></>}
         </tr>)}
       </tbody></table></div>}
-    {isTeam && <p className="management-footnote">Nesta etapa a equipe está em modo de consulta. Convites, alteração de perfis e suspensão de acesso exigem uma função segura no servidor; não serão executados diretamente pelo navegador.</p>}
+    {isTeam && <p className="management-footnote">Somente o Master pode enviar convites. Cada membro recebe acesso individual por módulo; nenhum acesso operacional é concedido automaticamente.</p>}
     {editing!==null && cfg && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)closeForm();}}><form className="management-modal" onSubmit={save}>
       <div className="modal-head"><div><span className="eyebrow">CADASTRO</span><h2>{editing==='new'?'Novo '+cfg.singular:'Editar '+cfg.singular}</h2></div><button type="button" className="modal-close" onClick={closeForm}>×</button></div>
       <div className="management-form-grid">{cfg.fields.map(([key,label,type,required,options])=><label key={key} className={type==='textarea'?'field-wide':''}>{label}{type==='textarea'?<textarea value={form[key]||''} onChange={e=>setForm({...form,[key]:e.target.value})} rows="3"/>:type==='select'?<select required={required} value={form[key]||'active'} onChange={e=>setForm({...form,[key]:e.target.value})}>{options.map(o=><option key={o} value={o}>{statusText[o]||o}</option>)}</select>:type==='company'?<select value={form[key]||''} onChange={e=>setForm({...form,[key]:e.target.value})}><option value="">Nenhuma unidade vinculada</option>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>:<input type={type} required={required} value={form[key]||''} onChange={e=>setForm({...form,[key]:e.target.value})}/>}</label>)}</div>
       <div className="modal-actions"><button type="button" className="secondary" onClick={closeForm}>Cancelar</button><button className="primary" disabled={busy}>{busy?'Salvando...':'Salvar cadastro'}</button></div>
+    </form></div>}
+    {memberOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget && !busy)setMemberOpen(false);}}><form className="management-modal member-modal" onSubmit={inviteMember}>
+      <div className="modal-head"><div><span className="eyebrow">NOVO ACESSO</span><h2>Adicionar membro à equipe</h2></div><button type="button" className="modal-close" disabled={busy} onClick={()=>setMemberOpen(false)}>×</button></div>
+      <div className="management-form-grid">
+        <label className="field-wide">Nome completo<input required value={member.full_name} onChange={e=>setMember({...member,full_name:e.target.value})} autoComplete="name"/></label>
+        <label className="field-wide">E-mail de acesso<input required type="email" value={member.email} onChange={e=>setMember({...member,email:e.target.value})} autoComplete="email"/></label>
+        <label className="field-wide">Perfil<select value={member.role} onChange={e=>setMember({...member,role:e.target.value})}><option value="staff">Equipe — acesso individual</option><option value="performance">Tráfego pago — GNR Performance</option><option value="client">Cliente — acesso individual</option></select></label>
+      </div>
+      {member.role==='performance' ? <div className="permission-group"><b>GNR Performance</b><label className="permission-row"><input type="checkbox" checked={true} readOnly/> Visualizar módulo</label><label className="permission-row"><input type="checkbox" checked={!!permissions.performance?.can_manage} onChange={e=>togglePermission('performance','can_manage',e.target.checked)}/> Gerenciar dados e campanhas</label></div> :
+        <div className="permission-group"><div className="permission-heading"><b>Permissões por módulo</b><small>Sem seleção, o membro não terá acesso ao módulo.</small></div>
+          {moduleOptions.map(([key,label])=><div className="permission-row-wrap" key={key}><span>{label}</span><label><input type="checkbox" checked={!!permissions[key]?.can_view} onChange={e=>togglePermission(key,'can_view',e.target.checked)}/> Visualizar</label><label><input type="checkbox" checked={!!permissions[key]?.can_manage} onChange={e=>togglePermission(key,'can_manage',e.target.checked)}/> Gerenciar</label></div>)}
+        </div>}
+      <p className="management-footnote">O convite será enviado pelo Supabase Auth. O membro precisará abrir o e-mail e definir a própria senha.</p>
+      <div className="modal-actions"><button type="button" className="secondary" disabled={busy} onClick={()=>setMemberOpen(false)}>Cancelar</button><button className="primary" disabled={busy}>{busy?'Enviando convite...':'Enviar convite'}</button></div>
     </form></div>}
   </section>;
 }
