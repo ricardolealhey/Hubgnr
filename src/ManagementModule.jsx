@@ -44,7 +44,7 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
   const [notice,setNotice] = useState('');
   const [memberOpen,setMemberOpen] = useState(false);
   const [member,setMember] = useState({full_name:'',email:'',role:'staff'});
-  const [permissions,setPermissions] = useState({});
+  const [draftPermissions,setDraftPermissions] = useState({});
 
   async function load() {
     setLoading(true); setNotice('');
@@ -76,13 +76,13 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
 
   function openMemberForm(){
     setMember({full_name:'',email:'',role:'staff'});
-    setPermissions({});
+    setDraftPermissions({});
     setMemberOpen(true);
     setNotice('');
   }
 
   function togglePermission(key, field, value) {
-    setPermissions(current => {
+    setDraftPermissions(current => {
       const previous = current[key] || {can_view:false,can_manage:false};
       const next = {...previous,[field]:value};
       if (field==='can_view' && !value) next.can_manage=false;
@@ -95,14 +95,14 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
     event.preventDefault();
     setBusy(true); setNotice('');
     const selectedPermissions = moduleOptions
-      .map(([module_key]) => ({module_key,...(permissions[module_key] || {can_view:false,can_manage:false})}))
+      .map(([module_key]) => ({module_key,...(draftPermissions[module_key] || {can_view:false,can_manage:false})}))
       .filter(p=>p.can_view);
     const payload = {
       full_name:member.full_name.trim(),
       email:member.email.trim(),
       role:member.role,
       permissions: member.role==='performance'
-        ? [{module_key:'performance',can_view:true,can_manage:!!permissions.performance?.can_manage}]
+        ? [{module_key:'performance',can_view:true,can_manage:!!draftPermissions.performance?.can_manage}]
         : selectedPermissions
     };
     const {data,error} = await supabase.functions.invoke('hub-invite-member',{body:payload});
@@ -164,7 +164,7 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
       </div>
       {member.role==='performance' ? <div className="permission-group"><b>GNR Performance</b><label className="permission-row"><input type="checkbox" checked={true} readOnly/> Visualizar módulo</label><label className="permission-row"><input type="checkbox" checked={!!permissions.performance?.can_manage} onChange={e=>togglePermission('performance','can_manage',e.target.checked)}/> Gerenciar dados e campanhas</label></div> :
         <div className="permission-group"><div className="permission-heading"><b>Permissões por módulo</b><small>Sem seleção, o membro não terá acesso ao módulo.</small></div>
-          {moduleOptions.map(([key,label])=><div className="permission-row-wrap" key={key}><span>{label}</span><label><input type="checkbox" checked={!!permissions[key]?.can_view} onChange={e=>togglePermission(key,'can_view',e.target.checked)}/> Visualizar</label><label><input type="checkbox" checked={!!permissions[key]?.can_manage} onChange={e=>togglePermission(key,'can_manage',e.target.checked)}/> Gerenciar</label></div>)}
+          {moduleOptions.map(([key,label])=><div className="permission-row-wrap" key={key}><span>{label}</span><label><input type="checkbox" checked={!!draftPermissions[key]?.can_view} onChange={e=>togglePermission(key,'can_view',e.target.checked)}/> Visualizar</label><label><input type="checkbox" checked={!!draftPermissions[key]?.can_manage} onChange={e=>togglePermission(key,'can_manage',e.target.checked)}/> Gerenciar</label></div>)}
         </div>}
       <p className="management-footnote">O convite será enviado pelo Supabase Auth. O membro precisará abrir o e-mail e definir a própria senha.</p>
       <div className="modal-actions"><button type="button" className="secondary" disabled={busy} onClick={()=>setMemberOpen(false)}>Cancelar</button><button className="primary" disabled={busy}>{busy?'Enviando convite...':'Enviar convite'}</button></div>
