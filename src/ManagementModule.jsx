@@ -24,7 +24,7 @@ const moduleOptions = [
   ['companies','Empresas'],['clients','Clientes'],['crm','CRM Comercial'],['projects','Projetos'],
   ['tasks','Tarefas'],['calendar','Calendário'],['finance','Financeiro'],['digital_presence','Presença Digital'],
   ['connect','GNR Connect'],['tickets','Chamados'],['client_portal','Portal do Cliente'],
-  ['performance','GNR Performance'],['mentoring','Mentoria'],['reports','Relatórios'],['team','Equipe']
+  ['performance','GNR Performance'],['mentoring','Mentoria'],['reports','Relatórios']
 ];
 const blank = { name:'', legal_name:'', document:'', segment:'', email:'', phone:'', website:'', status:'active', notes:'', contact_person:'', source:'', company_id:'' };
 const statusText = { active:'Ativo', inactive:'Inativo', prospect:'Prospect', invited:'Convite enviado', suspended:'Suspenso' };
