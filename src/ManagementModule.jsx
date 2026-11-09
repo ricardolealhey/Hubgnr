@@ -29,9 +29,11 @@ const moduleOptions = [
 const blank = { name:'', legal_name:'', document:'', segment:'', email:'', phone:'', website:'', status:'active', notes:'', contact_person:'', source:'', company_id:'' };
 const statusText = { active:'Ativo', inactive:'Inativo', prospect:'Prospect', invited:'Convite enviado', suspended:'Suspenso' };
 
-export default function ManagementModule({ active, profile }) {
+export default function ManagementModule({ active, profile, permissions = [] }) {
   const isTeam = active === 'Equipe';
   const cfg = config[active];
+  const modulePermissionKey = active === 'Empresas' ? 'companies' : 'clients';
+  const canManage = ['master','admin'].includes(profile?.role) || !!permissions.find(p=>p.module_key===modulePermissionKey)?.can_manage;
   const [rows,setRows] = useState([]);
   const [companies,setCompanies] = useState([]);
   const [search,setSearch] = useState('');
@@ -136,7 +138,7 @@ export default function ManagementModule({ active, profile }) {
   return <section className="management-page">
     <div className="management-heading">
       <div><span className="eyebrow">{isTeam?'CONTROLE DE ACESSO':'CADASTROS-BASE'}</span><h1>{isTeam?'Equipe e usuários':cfg.title}</h1><p>{isTeam?'Convide membros e conceda somente os módulos necessários.':'Organize os cadastros que alimentam a operação do HUB GNR.'}</p></div>
-      {isTeam ? profile?.role==='master' && <button className="primary management-add" onClick={openMemberForm}>+ Adicionar membro</button> : <button className="primary management-add" onClick={openNew}>+ Novo {cfg.singular}</button>}
+      {isTeam ? profile?.role==='master' && <button className="primary management-add" onClick={openMemberForm}>+ Adicionar membro</button> : canManage && <button className="primary management-add" onClick={openNew}>+ Novo {cfg.singular}</button>}
     </div>
     <div className="management-toolbar"><div className="management-count"><strong>{rows.length}</strong><span>{isTeam?'usuários cadastrados':cfg.singular+'(s) cadastrados'}</span></div><input aria-label="Buscar registros" placeholder="Buscar por nome, e-mail ou documento..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
     {notice && <div className="management-notice" role="status">{notice}</div>}
@@ -144,7 +146,7 @@ export default function ManagementModule({ active, profile }) {
       <div className="management-table-wrap"><table className="management-table"><thead><tr>{(isTeam?['Nome','E-mail','Perfil','Status','Cadastro']:['Nome','Contato','Documento','Status','Ações']).map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>
         {filtered.map(row=><tr key={row.id||row.user_id}>
           {isTeam ? <><td><b>{row.full_name||'—'}</b></td><td>{row.email||'—'}</td><td><span className="role-chip">{row.role}</span></td><td><span className={'status-chip '+row.status}>{statusText[row.status]||row.status}</span></td><td>{row.created_at?new Date(row.created_at).toLocaleDateString('pt-BR'):'—'}</td></> :
-          <><td><b>{row.name}</b></td><td>{row.email||row.phone||row.contact_person||'—'}</td><td>{row.document||'—'}</td><td><span className={'status-chip '+row.status}>{statusText[row.status]||row.status}</span></td><td className="management-actions"><button onClick={()=>openEdit(row)}>Editar</button><button className="danger-action" onClick={()=>remove(row)}>Excluir</button></td></>}
+          <><td><b>{row.name}</b></td><td>{row.email||row.phone||row.contact_person||'—'}</td><td>{row.document||'—'}</td><td><span className={'status-chip '+row.status}>{statusText[row.status]||row.status}</span></td><td className="management-actions">{canManage ? <><button onClick={()=>openEdit(row)}>Editar</button><button className="danger-action" onClick={()=>remove(row)}>Excluir</button></> : <span className="role-chip">Somente leitura</span>}</td></>}
         </tr>)}
       </tbody></table></div>}
     {isTeam && <p className="management-footnote">Somente o Master pode enviar convites. Cada membro recebe acesso individual por módulo; nenhum acesso operacional é concedido automaticamente.</p>}
