@@ -134,7 +134,7 @@ function Dashboard({ profile, onLogout }) {
           </div>
         </section>
         <footer className="dashboard-footer"><span>HUB GNR · Central de gestão</span><span>{lastUpdated ? 'Consulta realizada às ' + lastUpdated.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : 'Indicadores em atualização'}</span></footer>
-      </> : ['Empresas','Clientes','Equipe'].includes(active) ? <ManagementModule active={active} /> : <section className="module-placeholder"><span className="eyebrow">MÓDULO PREVISTO NA ARQUITETURA</span><div className="placeholder-icon">{selected?.[0] || 'GNR'}</div><h1>{active}</h1><p>{selected?.[2] || 'Área de gestão do Grupo Nova Rota.'}</p><div className="planned-note"><b>Etapa ainda não implantada</b><span>Este módulo será desenvolvido na fase correspondente. Nenhum dado operacional será exibido até que a estrutura esteja pronta.</span></div><button className="secondary" onClick={()=>setActive('Visão Geral')}>Voltar ao painel</button></section>}
+      </> : ['Empresas','Clientes','Equipe'].includes(active) ? <ManagementModule active={active} profile={profile} /> : <section className="module-placeholder"><span className="eyebrow">MÓDULO PREVISTO NA ARQUITETURA</span><div className="placeholder-icon">{selected?.[0] || 'GNR'}</div><h1>{active}</h1><p>{selected?.[2] || 'Área de gestão do Grupo Nova Rota.'}</p><div className="planned-note"><b>Etapa ainda não implantada</b><span>Este módulo será desenvolvido na fase correspondente. Nenhum dado operacional será exibido até que a estrutura esteja pronta.</span></div><button className="secondary" onClick={()=>setActive('Visão Geral')}>Voltar ao painel</button></section>}
     </main>
   </div>;
 }
