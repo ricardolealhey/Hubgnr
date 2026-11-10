@@ -69,11 +69,12 @@ const modules = [
 ];
 
 const phases = [
-  { name: 'Fundação e identidade', status: 'Concluída', detail: 'Estrutura visual, navegação e aplicação responsiva', done: true },
-  { name: 'Autenticação e acesso', status: 'Validada', detail: 'Login, sessão e perfil Master', done: true },
-  { name: 'Master Dashboard', status: 'Em validação', detail: 'Visão central, indicadores e atalhos', done: false },
-  { name: 'Cadastros-base', status: 'Próxima', detail: 'Empresas, clientes e equipe', done: false },
+  { name: 'Fundação e identidade', status: 'Implementada no frontend', detail: 'Estrutura visual e navegação estão no código; teste manual responsivo ainda pendente', done: false },
+  { name: 'Autenticação e acesso', status: 'Integrada; não validada ponta a ponta', detail: 'Supabase Auth, perfis, RLS e função de convite existem; fluxos reais de login, recuperação e isolamento ainda não foram testados', done: false },
+  { name: 'Master Dashboard', status: 'Implementado parcialmente', detail: 'Consulta contagens básicas; indicadores de projetos e financeiro ainda não integrados', done: false },
+  { name: 'Cadastros-base', status: 'Implementados parcialmente', detail: 'Telas e tabelas de empresas, clientes e equipe; CRUD e permissões ainda aguardam teste ponta a ponta', done: false },
 ];
+const validatedPhases = phases.filter(phase => phase.done).length;
 
 function StatCard({ label, value, detail, icon, muted = false }) {
   return <article className={muted ? 'stat-card stat-muted' : 'stat-card'}><div className="stat-top"><span>{label}</span><i>{icon}</i></div><strong>{value}</strong><small>{detail}</small></article>;
@@ -119,7 +120,7 @@ function Dashboard({ profile, permissions = [], onLogout }) {
   const isOverview = active === 'Visão Geral';
 
   return <div className="app-shell">
-    <aside className="sidebar"><Brand /><div className="side-label">CENTRAL DE GESTÃO</div><nav className="desktop-nav">{allowedModules.map(([n,title])=><button key={n} className={active===title?'nav-item selected':'nav-item'} onClick={()=>setActive(title)}><span>{n}</span><b>{title}</b></button>)}</nav><label className="mobile-module-select"><span>MÓDULO</span><select value={active} onChange={e=>setActive(e.target.value)}>{allowedModules.map(([n,title])=><option key={n} value={title}>{n} · {title}</option>)}</select></label><div className="side-bottom"><span className="status-dot"></span> Supabase conectado</div></aside>
+    <aside className="sidebar"><Brand /><div className="side-label">CENTRAL DE GESTÃO</div><nav className="desktop-nav">{allowedModules.map(([n,title])=><button key={n} className={active===title?'nav-item selected':'nav-item'} onClick={()=>setActive(title)}><span>{n}</span><b>{title}</b></button>)}</nav><label className="mobile-module-select"><span>MÓDULO</span><select value={active} onChange={e=>setActive(e.target.value)}>{allowedModules.map(([n,title])=><option key={n} value={title}>{n} · {title}</option>)}</select></label><div className="side-bottom"><span className="status-dot"></span> {countsState === 'ready' ? 'Dados do Supabase consultados' : countsState === 'error' ? 'Falha na consulta ao Supabase' : 'Verificando Supabase'}</div></aside>
     <main className="main-area">
       <header className="topbar"><div><span className="eyebrow">GRUPO NOVA ROTA / {profile?.role?.toUpperCase()}</span><h2>{active}</h2></div><div className="user-area"><div className="avatar">{name.slice(0,1).toUpperCase()}</div><div><b>{name}</b><small>{profile?.role || 'usuário'}</small></div><button className="logout" onClick={onLogout}>Sair</button></div></header>
       {isOverview ? <>
@@ -134,7 +135,7 @@ function Dashboard({ profile, permissions = [], onLogout }) {
         <section className="dashboard-columns">
           <article className="panel-card module-panel"><div className="panel-title"><div><span className="eyebrow">NAVEGAÇÃO RÁPIDA</span><h3>Acesse os módulos</h3></div><span className="count-tag">16 áreas planejadas</span></div><div className="module-grid">{allowedModules.filter(m=>m[3]!=='overview').map(([n,title,desc])=><button key={n} className="module-tile" onClick={()=>setActive(title)}><span>{n}</span><div><b>{title}</b><small>{desc}</small></div><i>↗</i></button>)}</div></article>
           <div className="right-stack">
-            <article className="panel-card"><div className="panel-title"><div><span className="eyebrow">IMPLANTAÇÃO</span><h3>Progresso da fundação</h3></div><span className="progress-number">2/4</span></div><div className="progress-track"><span style={{width:'50%'}}></span></div><div className="phase-list">{phases.map((phase,i)=><div className="phase-row" key={phase.name}><span className={phase.done?'phase-check':'phase-number'}>{phase.done?'✓':String(i+1).padStart(2,'0')}</span><div><b>{phase.name}</b><small>{phase.detail}</small></div><em className={phase.done?'phase-done':i===2?'phase-current':'phase-pending'}>{phase.status}</em></div>)}</div></article>
+            <article className="panel-card"><div className="panel-title"><div><span className="eyebrow">IMPLANTAÇÃO</span><h3>Validação da fundação</h3></div><span className="progress-number">{validatedPhases}/{phases.length} validadas</span></div><div className="progress-track"><span style={{width:(validatedPhases / phases.length * 100) + '%'}}></span></div><div className="phase-list">{phases.map((phase,i)=><div className="phase-row" key={phase.name}><span className={phase.done?'phase-check':'phase-number'}>{phase.done?'✓':String(i+1).padStart(2,'0')}</span><div><b>{phase.name}</b><small>{phase.detail}</small></div><em className={phase.done?'phase-done':i===2?'phase-current':'phase-pending'}>{phase.status}</em></div>)}</div></article>
             <article className="panel-card ecosystem-card"><span className="eyebrow">ECOSSISTEMA GNR</span><h3>Integrações previstas</h3><div className="ecosystem-item"><i>CRM</i><div><b>GNR CRM</b><small>Integração depende de auditoria técnica</small></div><span>PENDENTE</span></div><div className="ecosystem-item"><i>VI</i><div><b>GNR Visitor Intelligence</b><small>Integração depende de auditoria técnica</small></div><span>PENDENTE</span></div><p className="disclaimer">Nenhuma integração externa foi ativada nesta fase.</p></article>
           </div>
         </section>
