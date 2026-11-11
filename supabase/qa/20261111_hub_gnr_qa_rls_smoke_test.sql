@@ -51,7 +51,7 @@ set status = 'invited'
 where user_id = '11111111-1111-4111-8111-111111111103';
 
 update auth.users
-set email_confirmed_at = now(), confirmed_at = now(), updated_at = now()
+set email_confirmed_at = now(), updated_at = now()
 where id = '11111111-1111-4111-8111-111111111103';
 
 insert into public.user_module_permissions
