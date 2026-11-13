@@ -93,3 +93,22 @@ Nenhum backup independente foi criado ou validado nesta sessão; destino, reten�
 - Revisar esta branch e decidir se as alterações podem ser mescladas.
 
 **Conclusão:** o repositório e a branch principal estão identificados; há fluxo de branches e um PR de QA em uso. A política de revisão, a proteção efetiva de `main`, CI e backup independente ainda não estão comprovados. Esta documentação organiza a proposta, mas não declara esses controles como implantados.
+
+## 8. Revalidação — 13/11/2026
+
+Consulta somente de leitura ao repositório oficial:
+
+- Repositório `ricardolealhey/Hubgnr` continua público, com `main` como branch padrão e permissões de leitura/escrita disponíveis ao conector.
+- A comparação `main...docs/github-versioning-2026-11-12` retorna **4 commits à frente e 0 atrás**. A proposta documental permanece isolada e baseada no HEAD `e88801342f1447b129a2df5101835e09bb0d75b4`; nenhum commit foi aplicado em `main`.
+- Branches listadas nesta consulta: `main`, `audit/accurate-validation-status-2026-11-10`, `docs/github-versioning-2026-11-12`, `qa/netlify-build-validation-2026-11-11` e `qa/supabase-bootstrap-2026-11-11`.
+- O único PR aberto localizado continua sendo o **PR #1**, em draft, sem merge. Nenhum PR foi criado para esta proposta documental.
+- `.gitignore` contém `node_modules/`, `dist/`, `.env` e `.env.*`, mantendo exceção explícita para `.env.example`.
+- `package-lock.json` continua ausente na branch `main`; a consulta ao caminho retornou 404.
+- A consulta ao caminho `.github/workflows` retornou 404; não há workflow de CI comprovado nesta execução.
+- A consulta ao endpoint de proteção da branch `main` também retornou 404. Pela limitação da conexão, o estado da proteção permanece **não confirmado**; não interpretar essa resposta isolada como prova de que não há regra configurada.
+
+### Resultado e limites desta revalidação
+
+Nenhuma configuração do GitHub foi alterada. Não foram criados PRs, regras de proteção, workflows, tags ou backups. A branch documental continua pronta para revisão, mas depende de decisão de Ricardo sobre aprovação/merge, segundo revisor e destino de backup. A geração de lockfile e o build reproduzível continuam pendentes de ambiente Node/npm com dependências instaláveis.
+
+**Próxima ação técnica segura:** preparar um lockfile em ambiente Node 20/npm, validar `npm ci` e `npm run build` e apresentar a alteração em branch isolada. Não tornar checks obrigatórios antes de existir CI funcional.
