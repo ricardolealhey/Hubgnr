@@ -99,7 +99,7 @@ Nenhum backup independente foi criado ou validado nesta sessão; destino, reten�
 Consulta somente de leitura ao repositório oficial:
 
 - Repositório `ricardolealhey/Hubgnr` continua público, com `main` como branch padrão e permissões de leitura/escrita disponíveis ao conector.
-- A comparação `main...docs/github-versioning-2026-11-12` retorna **4 commits à frente e 0 atrás**. A proposta documental permanece isolada e baseada no HEAD `e88801342f1447b129a2df5101835e09bb0d75b4`; nenhum commit foi aplicado em `main`.
+- A comparação `main...docs/github-versioning-2026-11-12` retorna **5 commits à frente e 0 atrás**. A proposta documental permanece isolada e baseada no HEAD `e88801342f1447b129a2df5101835e09bb0d75b4`; nenhum commit foi aplicado em `main`.
 - Branches listadas nesta consulta: `main`, `audit/accurate-validation-status-2026-11-10`, `docs/github-versioning-2026-11-12`, `qa/netlify-build-validation-2026-11-11` e `qa/supabase-bootstrap-2026-11-11`.
 - O único PR aberto localizado continua sendo o **PR #1**, em draft, sem merge. Nenhum PR foi criado para esta proposta documental.
 - `.gitignore` contém `node_modules/`, `dist/`, `.env` e `.env.*`, mantendo exceção explícita para `.env.example`.
@@ -112,3 +112,24 @@ Consulta somente de leitura ao repositório oficial:
 Nenhuma configuração do GitHub foi alterada. Não foram criados PRs, regras de proteção, workflows, tags ou backups. A branch documental continua pronta para revisão, mas depende de decisão de Ricardo sobre aprovação/merge, segundo revisor e destino de backup. A geração de lockfile e o build reproduzível continuam pendentes de ambiente Node/npm com dependências instaláveis.
 
 **Próxima ação técnica segura:** preparar um lockfile em ambiente Node 20/npm, validar `npm ci` e `npm run build` e apresentar a alteração em branch isolada. Não tornar checks obrigatórios antes de existir CI funcional.
+
+
+## 9. Revalidação — 14/11/2026
+
+Consulta somente de leitura ao repositório oficial `ricardolealhey/Hubgnr`:
+
+- Repositório confirmado como público, com `main` como branch padrão. O conector possui permissões de leitura e push; nenhuma configuração administrativa foi alterada.
+- A comparação `main...docs/github-versioning-2026-11-12` retorna **5 commits à frente e 0 atrás**. A branch de documentação continua baseada no HEAD `e88801342f1447b129a2df5101835e09bb0d75b4`; não houve merge nem alteração em `main`.
+- A branch contém as correções preparatórias de ambiente: `.env.example` sem valores e README orientando uso exclusivo do Supabase QA. Esses ajustes continuam isolados e não foram publicados na branch principal.
+- **Risco operacional confirmado em `main`:** o arquivo `.env.example` ainda contém a URL e uma chave Supabase do projeto principal. A chave é do tipo publishable (não é uma chave secreta), mas o exemplo pode induzir uma instalação local a apontar para produção. Não registrei nem repliquei o valor neste documento. A correção já existe na branch isolada; não foi mesclada.
+- `package-lock.json` não existe nem em `main` nem nesta branch de documentação (consultas de conteúdo retornaram 404). Portanto, ainda não há instalação determinística por `npm ci`.
+- O caminho `.github/workflows/ci.yml` não foi encontrado em `main` (404). A consulta de status do HEAD `e88801342f1447b129a2df5101835e09bb0d75b4` retornou `total_count: 0`, sem checks/status registrados. CI não está comprovada.
+- A consulta de rulesets retornou lista vazia. A leitura de branch protection retornou HTTP 403 (`Resource not accessible by integration`); portanto, a proteção efetiva de `main` permanece **não confirmada**, e não se deve interpretar o 403 como ausência de proteção.
+- O único PR aberto encontrado continua sendo o PR #1, em draft, sem merge. Nenhum PR foi criado ou alterado nesta sessão.
+- O ambiente local disponibiliza Node `v22.16.0` e npm `10.9.2`, não a versão Node 20 definida no Netlify. As consultas DNS para `github.com` e `registry.npmjs.org` não retornaram endereços; por isso não foi possível clonar o repositório, instalar dependências ou executar `npm run build`.
+
+### Resultado desta revalidação
+
+O repositório oficial, a branch principal e o estado das branches de trabalho estão identificados. A correção preventiva do ambiente local já está preparada em branch isolada, mas ainda não chegou a `main`. Permanecem pendentes o lockfile, o build reproduzível, a CI, a confirmação administrativa da proteção de `main`, a decisão sobre revisão independente e a aprovação do destino de backup externo.
+
+**Próxima ação técnica segura:** disponibilizar um ambiente Node 20 com acesso ao registry, gerar e revisar `package-lock.json`, executar `npm ci` e `npm run build`, e então preparar CI em branch isolada. Não tornar checks obrigatórios antes de existir um workflow comprovadamente funcional. Não mesclar a correção de `.env.example` nem iniciar publicação sem autorização explícita de Ricardo.
