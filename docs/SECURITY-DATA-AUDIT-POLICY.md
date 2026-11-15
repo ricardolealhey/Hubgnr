@@ -221,7 +221,7 @@ Nenhuma etapa desta tabela deve ser marcada como implantada apenas por estar des
 
 - Supabase QA wbxxqhduiyryjnqcrscp: estado ACTIVE_HEALTHY; quatro tabelas públicas com RLS habilitado e zero linhas; nenhuma Edge Function listada na consulta desta sessão.
 - Netlify QA hubgnr-qa: sem deploy publicado; último deploy listado SKIPPED por limite de créditos. O estado consultado não exige senha nem SSO; não publicar até haver decisão de proteção e caminho de deploy sem gasto.
-- GitHub: repositório oficial ricardolealhey/Hubgnr, branch padrão main. A branch docs/github-versioning-2026-11-12 está 6 commits à frente e 0 atrás de main; contém esta minuta e outras documentações propostas, sem merge.
+- GitHub: repositório oficial ricardolealhey/Hubgnr, branch padrão main. A branch docs/github-versioning-2026-11-12 permanece isolada e ainda não foi mesclada em main; contém esta minuta e outras documentações propostas.
 - Não foram criados usuários, alterados dados, Auth, RLS, permissões, variáveis ou deploys nesta sessão.
 - Os testes anteriores de banco (16/16 RLS/triggers e 6/6 operações CRUD Master) usaram claims sintéticos e ROLLBACK. Não equivalem a autenticação real ou testes E2E.
 
