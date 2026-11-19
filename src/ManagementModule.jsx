@@ -121,16 +121,25 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
     if(cfg.table==='clients') payload.company_id=payload.company_id||null;
     const result=editing==='new'
       ? await supabase.from(cfg.table).insert(payload)
-      : await supabase.from(cfg.table).update(payload).eq('id',editing);
+      : await supabase.from(cfg.table).update(payload).eq('id',editing).select('id');
     setBusy(false);
     if(result.error){setNotice(result.error.message);return;}
+    if(editing!=='new' && result.data?.length!==1){
+      setNotice('Nenhum registro foi alterado. Atualize a lista e tente novamente.');
+      await load();
+      return;
+    }
     closeForm(); setNotice('Registro salvo.'); await load();
   }
 
   async function remove(row){
     if(!window.confirm('Excluir este registro? Esta ação não poderá ser desfeita.')) return;
-    const {error}=await supabase.from(cfg.table).delete().eq('id',row.id);
-    if(error) setNotice(error.message); else {setNotice('Registro excluído.'); await load();}
+    const {data,error}=await supabase.from(cfg.table).delete().eq('id',row.id).select('id');
+    if(error) setNotice(error.message);
+    else if(data?.length!==1){
+      setNotice('Nenhum registro foi excluído. A lista foi atualizada.');
+      await load();
+    } else {setNotice('Registro excluído.'); await load();}
   }
 
   if(!cfg && !isTeam) return null;
