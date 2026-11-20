@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabase';
+import { hasExactlyOneAffectedRow } from './affectedRows.js';
 
 const config = {
   Empresas: {
@@ -124,7 +125,7 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
       : await supabase.from(cfg.table).update(payload).eq('id',editing).select('id');
     setBusy(false);
     if(result.error){setNotice(result.error.message);return;}
-    if(editing!=='new' && result.data?.length!==1){
+    if(editing!=='new' && !hasExactlyOneAffectedRow(result.data)){
       setNotice('Nenhum registro foi alterado. Atualize a lista e tente novamente.');
       await load();
       return;
@@ -136,7 +137,7 @@ export default function ManagementModule({ active, profile, permissions = [] }) 
     if(!window.confirm('Excluir este registro? Esta ação não poderá ser desfeita.')) return;
     const {data,error}=await supabase.from(cfg.table).delete().eq('id',row.id).select('id');
     if(error) setNotice(error.message);
-    else if(data?.length!==1){
+    else if(!hasExactlyOneAffectedRow(data)){
       setNotice('Nenhum registro foi excluído. A lista foi atualizada.');
       await load();
     } else {setNotice('Registro excluído.'); await load();}
