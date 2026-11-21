@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hasExactlyOneAffectedRow } from '../src/affectedRows.js';
 
-test('accepts exactly one affected row', () => {
+test('accepts exactly one affected row with a non-null id', () => {
   assert.equal(hasExactlyOneAffectedRow([{ id: 'row-1' }]), true);
 });
 
@@ -12,6 +12,12 @@ test('rejects zero affected rows', () => {
 
 test('rejects multiple affected rows', () => {
   assert.equal(hasExactlyOneAffectedRow([{ id: 'row-1' }, { id: 'row-2' }]), false);
+});
+
+test('rejects a single malformed row', () => {
+  for (const value of [[null], [{}], [{ id: null }]]) {
+    assert.equal(hasExactlyOneAffectedRow(value), false);
+  }
 });
 
 test('rejects missing or non-array results', () => {
