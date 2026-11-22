@@ -25,3 +25,9 @@ test('rejects missing or non-array results', () => {
     assert.equal(hasExactlyOneAffectedRow(value), false);
   }
 });
+
+test('rejects blank and non-string IDs', () => {
+  for (const value of [[{ id: '' }], [{ id: '   ' }], [{ id: 0 }], [{ id: false }]]) {
+    assert.equal(hasExactlyOneAffectedRow(value), false);
+  }
+});
