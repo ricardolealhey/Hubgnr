@@ -23,7 +23,7 @@ O módulo puro `src/demandDistribution.js` avalia se uma demanda está apta a se
 
 `received → triage → waiting_information / waiting_approval / waiting_responsible / ready → planned → in_progress → blocked / review → delivered → closed`
 
-As transições são validadas. `triage → ready` exige avaliação de distribuição positiva; tarefas bloqueadas devem retornar à triagem antes de retomar. Entrar em revisão exige evidência; revisão para entregue exige revisão aprovada; entregue para encerrada exige aceite explícito. `closed` é terminal.
+As transições são validadas. `triage → ready` exige o objeto de resultado READY do avaliador; tarefas bloqueadas devem retornar à triagem antes de retomar. Entrar em revisão exige evidência; revisão para entregue exige revisão aprovada; entregue para encerrada exige aceite explícito. `closed` é terminal.
 
 ## Integração futura (não incluída)
 
