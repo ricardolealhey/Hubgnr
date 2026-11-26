@@ -120,9 +120,16 @@ test('in progress cannot move to review without evidence', () => {
   assert.equal(result.ok, false);
 });
 
-test('triage moves to ready after distribution validation', () => {
-  const result = transitionTask(TASK_STATES.TRIAGE, TASK_STATES.READY, { distributionReady: true });
+test('triage moves to ready only with evaluator result', () => {
+  const demand = validDemand();
+  const evaluation = evaluateDistribution(demand, context());
+  const result = transitionTask(TASK_STATES.TRIAGE, TASK_STATES.READY, { distributionResult: evaluation });
   assert.equal(result.ok, true);
+});
+
+test('malformed evaluation context is handled without throwing', () => {
+  const result = evaluateDistribution(validDemand(), null);
+  assert.equal(result.decision, DISTRIBUTION_DECISIONS.WAITING_RESPONSIBLE);
 });
 
 test('in progress moves to review with evidence', () => {
