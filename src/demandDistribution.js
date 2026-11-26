@@ -73,7 +73,7 @@ function isNonEmptyText(value) {
 }
 
 function isValidDate(value) {
-  if (typeof value !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(`${value}T00:00:00.000Z`);
   return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
 }
@@ -92,6 +92,7 @@ export function evaluateDistribution(demand, context = {}) {
     return result(DISTRIBUTION_DECISIONS.INVALID, ['Demanda inválida: esperado um objeto.']);
   }
 
+  context = context && typeof context === 'object' && !Array.isArray(context) ? context : {};
   const missing = REQUIRED_FIELDS.filter((field) => !Object.hasOwn(demand, field));
   if (missing.length) {
     return result(
@@ -166,8 +167,9 @@ export function transitionTask(currentState, nextState, context = {}) {
   if (!TRANSITIONS[currentState].includes(nextState)) {
     return Object.freeze({ ok: false, state: currentState, error: `Transição não permitida: ${currentState} → ${nextState}.` });
   }
-  if (currentState === TASK_STATES.TRIAGE && nextState === TASK_STATES.READY && context.distributionReady !== true) {
-    return Object.freeze({ ok: false, state: currentState, error: 'A distribuição exige validação READY da demanda.' });
+  context = context && typeof context === 'object' && !Array.isArray(context) ? context : {};
+  if (currentState === TASK_STATES.TRIAGE && nextState === TASK_STATES.READY && context.distributionResult?.decision !== DISTRIBUTION_DECISIONS.READY) {
+    return Object.freeze({ ok: false, state: currentState, error: 'A distribuição exige resultado READY do avaliador.' });
   }
   if (currentState === TASK_STATES.IN_PROGRESS && nextState === TASK_STATES.REVIEW) {
     if (!Array.isArray(context.evidence) || context.evidence.length === 0) {
