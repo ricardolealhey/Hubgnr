@@ -44,7 +44,7 @@ function validateHistory(history) {
     }
     if (!nonEmpty(entry.actorId)) errors.push("Evento " + (entry.id || index + 1) + " sem ator.");
     if (!nonEmpty(entry.description)) errors.push("Evento " + (entry.id || index + 1) + " sem descrição.");
-    if (entry.evidence !== undefined && (!Array.isArray(entry.evidence) || entry.evidence.some((item) => !nonEmpty(item))) {
+    if (entry.evidence !== undefined && (!Array.isArray(entry.evidence) || entry.evidence.some((item) => !nonEmpty(item)))) {
       errors.push("Evidências inválidas no evento " + (entry.id || index + 1) + ".");
     }
   }
@@ -124,7 +124,7 @@ export function prepareTaskClosure(input) {
     if (lastPrior && validIsoDateTime(lastPrior.timestamp) && Date.parse(lastPrior.timestamp) > Date.parse(input.review.reviewedAt)) errors.push('Novo encerramento não pode anteceder o último evento do histórico.');
   }
   const generatedIds = [input.recordId + ":review", input.recordId + ":delivery", input.recordId + ":acceptance", input.recordId + ":closure"];
-  if (Array.isArray(priorHistory) && generatedIds.some((id) => priorHistory.some((entry) => entry?.id === id)) errors.push('ID de evento duplicado entre histórico anterior e encerramento preparado.');
+  if (Array.isArray(priorHistory) && generatedIds.some((id) => priorHistory.some((entry) => entry?.id === id))) errors.push('ID de evento duplicado entre histórico anterior e encerramento preparado.');
   if (errors.length) return Object.freeze({ ok: false, errors: Object.freeze(errors), record: null, history: null });
 
   const record = Object.freeze({
