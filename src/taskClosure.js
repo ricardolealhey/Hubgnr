@@ -51,6 +51,7 @@ function validateHistory(history) {
   return errors;
 }
 
+
 /**
  * Builds a closure package and appended audit history in memory only.
  * Does not write to the HUB, Asana, database or any external service.
